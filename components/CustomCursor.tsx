@@ -8,15 +8,19 @@ export default function CustomCursor() {
 
   const [label, setLabel] = useState("");
   const [isHovering, setIsHovering] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // ✅ Detect touch device — hide cursor on mobile
+    // ✅ Multiple checks to detect touch/mobile
     const isTouch =
       "ontouchstart" in window ||
-      navigator.maxTouchPoints > 0;
-    setIsTouchDevice(isTouch);
-    if (isTouch) return; // Don't add mouse listeners on mobile
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.innerWidth < 768;
+
+    if (isTouch) return; // Exit early on mobile
+
+    setVisible(true);
 
     const move = (e: MouseEvent) => {
       const transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
@@ -46,8 +50,8 @@ export default function CustomCursor() {
     };
   }, []);
 
-  // ✅ Render nothing on touch/mobile devices
-  if (isTouchDevice) return null;
+  // ✅ Render nothing on mobile
+  if (!visible) return null;
 
   return (
     <>
@@ -57,7 +61,7 @@ export default function CustomCursor() {
         className="pointer-events-none fixed top-0 left-0 z-[999999] w-2 h-2 bg-cyan-400 rounded-full -translate-x-1/2 -translate-y-1/2"
         style={{
           willChange: "transform",
-          transform: "translate3d(0,0,0)",
+          transform: "translate3d(-100px,-100px,0)",
         }}
       />
 
@@ -74,7 +78,7 @@ export default function CustomCursor() {
         -translate-x-1/2 -translate-y-1/2`}
         style={{
           willChange: "transform",
-          transform: "translate3d(0,0,0)",
+          transform: "translate3d(-100px,-100px,0)",
         }}
       >
         {/* LABEL */}
