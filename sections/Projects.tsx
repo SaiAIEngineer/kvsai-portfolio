@@ -17,7 +17,7 @@ export default function Projects() {
     { name: "Deployment", color: "bg-orange-400/20 text-orange-400" },
   ];
 
-  // PROJECT DATA (⚠️ Replace links with your real ones)
+  // PROJECT DATA
   const projects = [
     {
       id: "career",
@@ -63,7 +63,6 @@ export default function Projects() {
     },
   ];
 
-  // COLOR THEMES
   const themes = [
     {
       glow: "from-cyan-400 via-blue-500 to-transparent",
@@ -80,10 +79,7 @@ export default function Projects() {
   ];
 
   return (
-    <section
-      id="projects"
-      className="min-h-screen px-6 md:px-20 py-32 text-white"
-    >
+    <section id="projects" className="min-h-screen px-6 md:px-20 py-32 text-white">
       {/* TITLE */}
       <Reveal>
         <h2 className="text-3xl md:text-5xl font-bold text-center">
@@ -91,31 +87,43 @@ export default function Projects() {
         </h2>
       </Reveal>
 
-      {/* WORKFLOW */}
+      {/* RESPONSIVE WORKFLOW */}
       <Reveal>
         <div className="mt-16 text-center">
-          <h3 className="text-xl font-semibold">
+          <h3 className="text-xl font-semibold mb-8">
             My Project <span className="text-cyan-400">Workflow</span>
           </h3>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="flex flex-col md:flex-row flex-wrap justify-center items-center gap-4 md:gap-2 lg:gap-4">
             {steps.map((step, i) => (
-              <div key={step.name} className="flex items-center gap-3">
+              <div key={step.name} className="flex flex-col md:flex-row items-center gap-4">
                 <motion.span
                   animate={{ y: [0, -6, 0] }}
                   transition={{ duration: 2 + i * 0.2, repeat: Infinity }}
-                  className={`px-4 py-2 rounded-full ${step.color}`}
+                  className={`px-5 py-2 rounded-full text-sm font-medium border border-white/5 ${step.color} shadow-lg shadow-black/20`}
                 >
                   {step.name}
                 </motion.span>
 
                 {i < steps.length - 1 && (
-                  <motion.span
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  >
-                    →
-                  </motion.span>
+                  <>
+                    {/* Desktop Horizontal Arrow */}
+                    <motion.span
+                      className="hidden md:block text-gray-500 font-bold"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      →
+                    </motion.span>
+                    {/* Mobile Vertical Arrow */}
+                    <motion.span
+                      className="block md:hidden text-gray-600 text-xs"
+                      animate={{ y: [0, 5, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      ↓
+                    </motion.span>
+                  </>
                 )}
               </div>
             ))}
@@ -123,10 +131,10 @@ export default function Projects() {
         </div>
       </Reveal>
 
-      {/* PROJECT CARDS */}
-      <div className="mt-20 grid md:grid-cols-3 gap-10">
+      {/* IMPROVED GRID LAYOUT */}
+      <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
         {projects.map((project, index) => {
-          const theme = themes[index];
+          const theme = themes[index % themes.length];
 
           return (
             <motion.div
@@ -135,85 +143,73 @@ export default function Projects() {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-
                 e.currentTarget.style.setProperty("--x", `${x}px`);
                 e.currentTarget.style.setProperty("--y", `${y}px`);
               }}
-              whileHover={{ rotateX: 5, rotateY: -5, scale: 1.03 }}
+              whileHover={{ rotateX: 5, rotateY: -5, scale: 1.02 }}
               className="relative rounded-xl p-6 group overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md"
               style={{ transformStyle: "preserve-3d" }}
             >
-              {/* SPOTLIGHT */}
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500"
                 style={{
                   background: `radial-gradient(250px circle at var(--x) var(--y), ${theme.light}, transparent 40%)`,
                 }}
               />
 
-              {/* NEON GLOW */}
-              <div
-                className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-br ${theme.glow}`}
-              />
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition duration-500 bg-gradient-to-br ${theme.glow}`} />
 
-              {/* GLASS SHINE */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-              </div>
-
-              {/* CONTENT */}
               <div className="relative z-10">
                 <h3 className="text-xl font-semibold">{project.title}</h3>
-                <p className="text-gray-400 mt-2 text-sm">{project.desc}</p>
+                <p className="text-gray-400 mt-2 text-sm leading-relaxed">{project.desc}</p>
 
-                {/* TECH */}
-                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {project.tech.map((t) => (
-                    <span key={t} className="bg-white/10 px-2 py-1 rounded">
+                    <span key={t} className="bg-white/10 px-2 py-1 rounded text-[10px] uppercase tracking-wider font-bold text-gray-300">
                       {t}
                     </span>
                   ))}
                 </div>
 
-                {/* DETAILS */}
                 {open === project.id && (
-                  <ul className="mt-4 text-xs text-gray-300 space-y-1">
+                  <motion.ul 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-4 text-xs text-gray-300 space-y-2 border-t border-white/5 pt-4"
+                  >
                     {project.details.map((d, i) => (
-                      <li key={i}>• {d}</li>
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-cyan-400">•</span>
+                        {d}
+                      </li>
                     ))}
-                  </ul>
+                  </motion.ul>
                 )}
 
-                {/* ACTIONS */}
-                <div className="mt-6 flex justify-between items-center text-sm">
+                <div className="mt-6 flex justify-between items-center">
                   <button
-                    onClick={() =>
-                      setOpen(open === project.id ? null : project.id)
-                    }
-                    className="text-cyan-400 hover:underline"
+                    onClick={() => setOpen(open === project.id ? null : project.id)}
+                    className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition"
                   >
-                    {open === project.id ? "Hide Details" : "View Details"}
+                    {open === project.id ? "HIDE INFO" : "VIEW INFO"}
                   </button>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <a
                       href={project.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative px-3 py-1.5 rounded border border-white/20 text-sm overflow-hidden transition-all duration-300 hover:border-cyan-400 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] hover:-translate-y-0.5"
+                      className="p-2 rounded border border-white/10 hover:border-cyan-400/50 hover:text-cyan-400 transition text-xs"
                     >
                       GitHub
-                      <span className="absolute inset-0 opacity-0 hover:opacity-100 bg-cyan-400/10 transition" />
                     </a>
-
                     <a
                       href={project.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative px-3 py-1.5 rounded bg-cyan-400 text-black text-sm overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.6)] hover:-translate-y-0.5"
+                      className="px-3 py-2 rounded bg-cyan-400 text-black font-bold text-xs hover:bg-cyan-300 transition"
                     >
                       Demo
-                      <span className="absolute inset-0 opacity-0 hover:opacity-100 bg-white/10 transition" />
                     </a>
                   </div>
                 </div>
