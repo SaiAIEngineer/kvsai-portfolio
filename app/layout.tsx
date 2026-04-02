@@ -7,8 +7,15 @@ import UltimateBackground from "@/components/UltimateBackground";
 
 export const metadata: Metadata = {
   title: `KVSAI - Applied AI Research Engineer`,
-  description: "|  Applied AI Research Engineer",
+  description: "| Applied AI Research Engineer",
+  // ADD THIS SECTION BELOW
+  icons: {
+    icon: "/kvsai.svg", // Ensure your image is in the 'public' folder with this name
+    shortcut: "/kvsai.svg",
+    apple: "/kvsai.svg", // Optional: for iOS home screen
+  },
 };
+
 export default function RootLayout({
   children,
 }: {
@@ -22,9 +29,7 @@ export default function RootLayout({
         {/* CURSOR */}
         <CustomCursor />
         {/* CONTENT */}
-        <main className="relative z-10">
-          {children}
-        </main>
+        <main className="relative z-10">{children}</main>
       </body>
     </html>
   );
