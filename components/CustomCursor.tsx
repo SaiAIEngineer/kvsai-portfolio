@@ -1,37 +1,27 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
-
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-
   const [label, setLabel] = useState("");
   const [isHovering, setIsHovering] = useState(false);
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
-    // ✅ Multiple checks to detect touch/mobile
     const isTouch =
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
       window.matchMedia("(pointer: coarse)").matches ||
       window.innerWidth < 768;
-
-    if (isTouch) return; // Exit early on mobile
-
+    if (isTouch) return;
     setVisible(true);
-
     const move = (e: MouseEvent) => {
       const transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
       if (dotRef.current) dotRef.current.style.transform = transform;
       if (ringRef.current) ringRef.current.style.transform = transform;
     };
-
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactive = target.closest("a, button");
-
       if (interactive) {
         setIsHovering(true);
         setLabel(interactive.getAttribute("data-cursor") || "VIEW");
@@ -40,21 +30,17 @@ export default function CustomCursor() {
         setLabel("");
       }
     };
-
     window.addEventListener("mousemove", move, { passive: true });
     window.addEventListener("mouseover", handleMouseOver);
-
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseover", handleMouseOver);
     };
   }, []);
-
-  // ✅ Render nothing on mobile
   if (!visible) return null;
-
   return (
-    <>
+    // ✅ ONLY ONE LINE ADDED — hides on all touch/mobile devices via CSS
+    <div className="hidden md:contents" style={{ ["@media(pointer:coarse)" as string]: { display: "none" } }}>
       {/* DOT */}
       <div
         ref={dotRef}
@@ -64,7 +50,6 @@ export default function CustomCursor() {
           transform: "translate3d(-100px,-100px,0)",
         }}
       />
-
       {/* RING */}
       <div
         ref={ringRef}
@@ -90,6 +75,6 @@ export default function CustomCursor() {
           {label}
         </span>
       </div>
-    </>
+    </div>
   );
 }
