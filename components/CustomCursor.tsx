@@ -8,11 +8,18 @@ export default function CustomCursor() {
 
   const [label, setLabel] = useState("");
   const [isHovering, setIsHovering] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    // ✅ Detect touch device — hide cursor on mobile
+    const isTouch =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0;
+    setIsTouchDevice(isTouch);
+    if (isTouch) return; // Don't add mouse listeners on mobile
+
     const move = (e: MouseEvent) => {
       const transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-
       if (dotRef.current) dotRef.current.style.transform = transform;
       if (ringRef.current) ringRef.current.style.transform = transform;
     };
@@ -38,6 +45,9 @@ export default function CustomCursor() {
       window.removeEventListener("mouseover", handleMouseOver);
     };
   }, []);
+
+  // ✅ Render nothing on touch/mobile devices
+  if (isTouchDevice) return null;
 
   return (
     <>
