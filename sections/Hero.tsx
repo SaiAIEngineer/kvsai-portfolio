@@ -76,7 +76,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 sm:px-6 overflow-hidden w-full max-w-full font-(--font-sora)"
+      className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 overflow-hidden font-(--font-sora)"
     >
       {/* 🔥 BACKGROUND */}
       <motion.div
@@ -95,8 +95,8 @@ export default function Hero() {
 
         <div className="absolute inset-0 bg-black/25" />
 
-        <div className="absolute w-48 h-48 md:w-125 md:h-125 bg-cyan-500/30 blur-3xl top-10 left-10" />
-        <div className="absolute w-40 h-40 md:w-100 md:h-100 bg-purple-500/30 blur-3xl bottom-10 right-10" />
+        <div className="absolute w-125 h-125 bg-cyan-500/30 blur-3xl top-10 left-10" />
+        <div className="absolute w-100 h-100 bg-purple-500/30 blur-3xl bottom-10 right-10" />
       </motion.div>
 
       {/* ORBS */}
@@ -114,7 +114,7 @@ export default function Hero() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-xs sm:text-sm md:text-lg tracking-widest mb-4 flex flex-wrap gap-2 items-center justify-center"
+        className="text-sm md:text-lg tracking-widest mb-4 flex gap-2 items-center justify-center"
       >
         <span className="text-cyan-400 font-semibold drop-shadow-[0_0_10px_rgba(34,211,238,0.9)] animate-pulse">
           AI
@@ -130,7 +130,7 @@ export default function Hero() {
       </motion.p>
 
       {/* 🔥 TITLE */}
-      <h1 className="text-3xl sm:text-5xl md:text-8xl font-bold leading-tight tracking-tight drop-shadow-[0_0_25px_rgba(34,211,238,0.25)]">
+      <h1 className="text-5xl md:text-8xl font-bold leading-tight tracking-tight drop-shadow-[0_0_25px_rgba(34,211,238,0.25)]">
         Building Scalable
         <br />
         <span className="text-cyan-400">Intelligent AI Systems</span>
@@ -161,7 +161,7 @@ export default function Hero() {
           View Projects
         </button>
 
-        
+        <a
           href="/Kalyanam_Venkata_Sree_Sai_Resume.pdf"
           target="_blank"
           data-cursor="OPEN"
