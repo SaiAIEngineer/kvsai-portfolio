@@ -206,8 +206,24 @@ export default function Hero() {
         id="home"
         ref={sectionRef}
         style={{ opacity: opacityHero }}
-        className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 bg-black font-sora overflow-hidden"
+        className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 font-sora overflow-hidden"
       >
+        {/* Background image + dark overlay for visibility */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: "url('/hero-bg.webp')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        {/* Dark overlay so text stays readable */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: "rgba(0,0,0,0.62)" }}
+        />
+
         {/* Cursor orb — follows mouse, no movement on buttons */}
         <div
           ref={orbRef}
