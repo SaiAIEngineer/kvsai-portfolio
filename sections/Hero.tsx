@@ -14,7 +14,7 @@ export default function Hero() {
     }
   };
 
-  // --- STATIC BUTTON (no movement) WITH VIEW BUBBLE + SHIMMER ---
+  // --- STATIC BUTTON — hover glow + bubble + shimmer, no flicker ---
   const StaticButton = ({
     children,
     className,
@@ -30,6 +30,17 @@ export default function Hero() {
   }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [shimmer, setShimmer] = useState(false);
+    const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const handleMouseEnter = () => {
+      if (leaveTimer.current) clearTimeout(leaveTimer.current);
+      setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+      // Small debounce so bubble doesn't flicker when mouse grazes the edge
+      leaveTimer.current = setTimeout(() => setIsHovered(false), 80);
+    };
 
     const handleClick = () => {
       setShimmer(false);
@@ -37,22 +48,25 @@ export default function Hero() {
       onClick?.();
     };
 
-    const Content = (
-      <div
-        className="relative inline-flex items-center justify-center"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+    // Shared wrapper — hover always on outermost element to prevent flicker
+    const wrapperProps = {
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+      style: { display: "inline-block", position: "relative" as const },
+    };
+
+    const Inner = (
+      <>
         {/* VIEW bubble */}
-        <motion.div
+        <motion.span
           initial={{ scale: 0, opacity: 0 }}
           animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="absolute z-30 pointer-events-none bg-cyan-400 text-black text-[9px] font-black tracking-widest py-1 px-2.5 rounded-full"
-          style={{ top: "-8px", right: "-10px" }}
+          transition={{ type: "spring", stiffness: 420, damping: 22 }}
+          className="absolute pointer-events-none bg-cyan-400 text-black text-[9px] font-black tracking-widest py-1 px-2.5 rounded-full"
+          style={{ top: "-10px", right: "-10px", zIndex: 40 }}
         >
           {bubbleLabel}
-        </motion.div>
+        </motion.span>
 
         <button
           onClick={handleClick}
@@ -61,29 +75,28 @@ export default function Hero() {
           <span className="relative z-20 px-10 py-4 font-bold text-sm flex items-center gap-2">
             {children}
           </span>
-
-          {/* Shimmer sweep on click */}
           {shimmer && (
             <span
               key={Date.now()}
-              className="absolute inset-0 z-10 pointer-events-none"
+              className="absolute inset-0 pointer-events-none"
               style={{
                 background:
                   "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 65%)",
                 animation: "shimmerSweep 0.5s ease forwards",
+                borderRadius: "999px",
               }}
             />
           )}
         </button>
-      </div>
+      </>
     );
 
     return href ? (
-      <a href={href} target="_blank" rel="noreferrer" className="inline-block">
-        {Content}
+      <a href={href} target="_blank" rel="noreferrer" {...wrapperProps}>
+        {Inner}
       </a>
     ) : (
-      Content
+      <div {...wrapperProps}>{Inner}</div>
     );
   };
 
