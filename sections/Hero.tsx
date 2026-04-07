@@ -20,18 +20,17 @@ export default function Hero() {
     }
   };
 
-  // ✨ Optimized Typing animation
+  // ✨ Optimized Typing animation for the Name
   const fullText = "Kalyanam Venkata Sree Sai";
   const [displayText, setDisplayText] = useState("");
   
   useEffect(() => {
     let i = 0;
     const typingInterval = setInterval(() => {
-      // Logic: Type out, wait at the end (buffer), then reset
       if (i <= fullText.length) {
         setDisplayText(fullText.slice(0, i));
         i++;
-      } else if (i > fullText.length + 20) { // Pause at full name
+      } else if (i > fullText.length + 30) { // Pause at the end before reset
         i = 0;
         setDisplayText("");
       } else {
@@ -42,21 +41,14 @@ export default function Hero() {
     return () => clearInterval(typingInterval);
   }, []);
 
-  // Memoized words to prevent unnecessary re-calculations
+  // Updated Professional Bio: Exactly 39 words
   const words = useMemo(() => [
-    "I", "am", "NAME_PLACEHOLDER", ",", "an", "Applied", "AI", "Research", "Engineer",
-    "dedicated", "to", "mastering", "the", "complex", "intersection", "of", "Generative", 
-    "AI,", "LLM", "orchestration,", "and", "scalable", "cloud", "architecture.", "My", 
-    "work", "bridges", "the", "critical", "gap", "between", "theoretical", "innovation", 
-    "and", "industrial", "utility;", "I", "specialize", "in", "transforming", "intricate", 
-    "datasets", "and", "cutting-edge", "research", "papers", "into", "robust,", 
-    "deployable,", "and", "high-performance", "AI", "solutions.", "By", "leveraging", 
-    "advanced", "prompt", "engineering,", "RAG", "pipelines,", "and", "efficient", 
-    "model", "fine-tuning,", "I", "ensure", "that", "every", "system", "I", "architect", 
-    "is", "meticulously", "optimized", "for", "reliability,", "minimal", "latency,", 
-    "and", "measurable", "real-world", "impact,", "ultimately", "turning", "the", 
-    "potential", "of", "artificial", "intelligence", "into", "a", "tangible", "tool", 
-    "for", "global", "progress."
+    "I", "am", "NAME_PLACEHOLDER", ",", "a", "dedicated", "Applied", "AI", "Research", 
+    "Engineer", "focused", "on", "mastering", "Generative", "AI", "and", "LLM", 
+    "orchestration.", "I", "specialize", "in", "transforming", "complex", "research", 
+    "into", "robust,", "high-performance", "AI", "solutions", "meticulously", 
+    "optimized", "for", "reliability,", "minimal", "latency,", "and", "measurable", 
+    "real-world", "impact."
   ], []);
 
   return (
@@ -64,7 +56,7 @@ export default function Hero() {
       id="home"
       className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 md:px-6 overflow-hidden font-sora"
     >
-      {/* BACKGROUND EFFECTS - pointer-events-none ensures buttons work */}
+      {/* BACKGROUND EFFECTS */}
       <motion.div style={{ y: yBg, opacity: opacityBg }} className="absolute inset-0 -z-10 pointer-events-none">
         <div 
           className="absolute inset-0" 
@@ -75,9 +67,9 @@ export default function Hero() {
             filter: "brightness(0.5) contrast(1.1)" 
           }} 
         />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute w-72 h-72 bg-cyan-500/10 blur-[120px] top-0 left-0 opacity-50" />
-        <div className="absolute w-72 h-72 bg-purple-500/10 blur-[120px] bottom-0 right-0 opacity-50" />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute w-72 h-72 bg-cyan-500/10 blur-[120px] top-0 left-0" />
+        <div className="absolute w-72 h-72 bg-purple-500/10 blur-[120px] bottom-0 right-0" />
       </motion.div>
 
       {/* TAGLINE */}
@@ -87,21 +79,15 @@ export default function Hero() {
         transition={{ duration: 0.6 }}
         className="text-[10px] sm:text-xs md:text-sm tracking-[0.3em] mb-6 flex flex-wrap gap-2 items-center justify-center uppercase font-bold text-gray-400"
       >
-        <span className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] animate-pulse">
-          AI
-        </span>
+        <span className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] animate-pulse">AI</span>
         <span className="opacity-30">•</span>
-        <span className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]">
-          LLM
-        </span>
+        <span className="text-purple-400">LLM</span>
         <span className="opacity-30">•</span>
-        <span className="text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.6)]">
-          GENERATIVE SYSTEMS
-        </span>
+        <span className="text-pink-400">GENERATIVE SYSTEMS</span>
       </motion.p>
 
       {/* MAIN TITLE */}
-      <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tighter px-2 text-white">
+      <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tighter text-white">
         Building Scalable <br className="hidden sm:block" />
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
           Intelligent AI Systems
@@ -109,12 +95,12 @@ export default function Hero() {
       </h1>
 
       {/* DESCRIPTION & TYPING */}
-      <div className="mt-8 text-gray-400 max-w-4xl text-sm md:text-base lg:text-lg leading-relaxed px-2 min-h-[120px]">
+      <div className="mt-8 text-gray-400 max-w-4xl text-sm md:text-base lg:text-lg leading-relaxed px-2 min-h-[100px]">
         <p className="flex flex-wrap justify-center gap-x-1.5 gap-y-1">
           {words.map((word, i) => {
             if (word === "NAME_PLACEHOLDER") {
               return (
-                <span key={i} className="text-cyan-300 font-bold border-b-2 border-cyan-500/30 min-w-[200px] inline-block text-left">
+                <span key={i} className="text-cyan-300 font-bold border-b border-cyan-500/30 min-w-[180px] inline-block text-left">
                   {displayText}
                   <span className="inline-block w-[2px] h-[1em] bg-cyan-400 ml-1 animate-pulse align-middle" />
                 </span>
@@ -126,10 +112,10 @@ export default function Hero() {
       </div>
 
       {/* BUTTONS */}
-      <div className="mt-12 flex flex-col sm:flex-row gap-5 w-full sm:w-auto px-10 sm:px-0 relative z-20">
+      <div className="mt-12 flex flex-col sm:flex-row gap-5 relative z-20">
         <button
           onClick={handleScroll}
-          className="bg-cyan-500 text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-cyan-400 hover:scale-105 transition-all shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+          className="bg-cyan-500 text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-cyan-400 hover:scale-105 transition-all shadow-[0_0_20px_rgba(34,211,238,0.3)]"
         >
           View Projects
         </button>
