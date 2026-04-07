@@ -1,90 +1,90 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, useMemo, useRef } from "react";
 
 export default function Hero() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { scrollY } = useScroll();
-
   const opacityHero = useTransform(scrollY, [0, 400], [1, 0]);
 
   const handleScroll = () => {
     const section = document.getElementById("projects");
     if (section) {
-      window.scrollTo({
-        top: section.offsetTop - 80,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top: section.offsetTop - 80, behavior: "smooth" });
     }
   };
 
-  // --- MAGNETIC BUTTON COMPONENT WITH 'VIEW' BUBBLE ---
-  const MagneticButton = ({ children, className, onClick, href, isPrimary }: any) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
+  // --- STATIC BUTTON (no movement) WITH VIEW BUBBLE + SHIMMER ---
+  const StaticButton = ({
+    children,
+    className,
+    onClick,
+    href,
+    bubbleLabel = "VIEW",
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    onClick?: () => void;
+    href?: string;
+    bubbleLabel?: string;
+  }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [shimmer, setShimmer] = useState(false);
 
-    const springConfig = { damping: 15, stiffness: 150 };
-    const translateX = useSpring(x, springConfig);
-    const translateY = useSpring(y, springConfig);
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { left, top, width, height } = ref.current!.getBoundingClientRect();
-      const centerX = left + width / 2;
-      const centerY = top + height / 2;
-
-      // Magnetic pull effect
-      x.set((clientX - centerX) * 0.3);
-      y.set((clientY - centerY) * 0.3);
-    };
-
-    const handleMouseLeave = () => {
-      x.set(0);
-      y.set(0);
-      setIsHovered(false);
+    const handleClick = () => {
+      setShimmer(false);
+      setTimeout(() => setShimmer(true), 10);
+      onClick?.();
     };
 
     const Content = (
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMouseMove}
+      <div
+        className="relative inline-flex items-center justify-center"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={handleMouseLeave}
-        style={{ x: translateX, y: translateY }}
-        className="relative group p-4"
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <button
-          onClick={onClick}
-          className={`${className} relative overflow-hidden transition-all duration-300 rounded-full flex items-center justify-center`}
+        {/* VIEW bubble */}
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="absolute z-30 pointer-events-none bg-cyan-400 text-black text-[9px] font-black tracking-widest py-1 px-2.5 rounded-full"
+          style={{ top: "-8px", right: "-10px" }}
         >
-          {/* 'VIEW' Bubble Effect */}
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-            className="absolute z-30 pointer-events-none bg-cyan-400 text-black text-[10px] font-bold py-1 px-3 rounded-full flex items-center justify-center shadow-lg"
-            style={{
-              top: '10%',
-              right: '-10%',
-            }}
-          >
-            VIEW
-          </motion.div>
+          {bubbleLabel}
+        </motion.div>
 
-          <span className="relative z-20 px-10 py-4 font-bold text-sm">
+        <button
+          onClick={handleClick}
+          className={`${className} relative overflow-hidden rounded-full flex items-center justify-center transition-all duration-300`}
+        >
+          <span className="relative z-20 px-10 py-4 font-bold text-sm flex items-center gap-2">
             {children}
           </span>
-          
-          {/* Internal Glow Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+
+          {/* Shimmer sweep on click */}
+          {shimmer && (
+            <span
+              key={Date.now()}
+              className="absolute inset-0 z-10 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 65%)",
+                animation: "shimmerSweep 0.5s ease forwards",
+              }}
+            />
+          )}
         </button>
-      </motion.div>
+      </div>
     );
 
-    return href ? <a href={href} target="_blank" className="inline-block">{Content}</a> : Content;
+    return href ? (
+      <a href={href} target="_blank" rel="noreferrer" className="inline-block">
+        {Content}
+      </a>
+    ) : (
+      Content
+    );
   };
 
   // --- TYPING ANIMATION ---
@@ -99,60 +99,192 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, []);
 
-  const words = useMemo(() => [
-    "I", "am", "NAME_PLACEHOLDER", ",", "a", "dedicated", "Applied", "AI", "Research",
-    "Engineer", "focused", "on", "mastering", "Generative", "AI", "and", "LLM",
-    "orchestration.", "I", "specialize", "in", "transforming", "complex", "research",
-    "into", "robust,", "high-performance", "AI", "solutions", "meticulously",
-    "optimized", "for", "reliability,", "minimal", "latency,", "and", "measurable",
-    "real-world", "impact."
-  ], []);
+  const words = useMemo(
+    () => [
+      "I", "am", "NAME_PLACEHOLDER", ",", "a", "dedicated", "Applied", "AI",
+      "Research", "Engineer", "focused", "on", "mastering", "Generative", "AI",
+      "and", "LLM", "orchestration.", "I", "specialize", "in", "transforming",
+      "complex", "research", "into", "robust,", "high-performance", "AI",
+      "solutions", "meticulously", "optimized", "for", "reliability,", "minimal",
+      "latency,", "and", "measurable", "real-world", "impact.",
+    ],
+    []
+  );
+
+  // --- CURSOR ORB ---
+  const orbRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const orb = orbRef.current;
+    if (!section || !orb) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = section.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      orb.style.left = `${x}px`;
+      orb.style.top = `${y}px`;
+    };
+
+    section.addEventListener("mousemove", handleMouseMove);
+    return () => section.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
-    <motion.section
-      id="home"
-      style={{ opacity: opacityHero }}
-      className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 bg-black font-sora overflow-hidden"
-    >
-      <motion.p
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="text-[10px] tracking-[0.5em] mb-8 uppercase font-bold text-gray-500"
+    <>
+      {/* Shimmer keyframe injection */}
+      <style>{`
+        @keyframes shimmerSweep {
+          from { transform: translateX(-100%); }
+          to   { transform: translateX(140%); }
+        }
+        @keyframes btnGlowCyan {
+          0%, 100% { box-shadow: 0 0 8px 2px rgba(34,211,238,0.35), 0 0 0px rgba(34,211,238,0); }
+          50%       { box-shadow: 0 0 18px 4px rgba(34,211,238,0.65), 0 0 32px 8px rgba(34,211,238,0.2); }
+        }
+        @keyframes btnGlowViolet {
+          0%, 100% { box-shadow: 0 0 8px 2px rgba(167,139,250,0.3), 0 0 0px rgba(167,139,250,0); }
+          50%       { box-shadow: 0 0 18px 4px rgba(167,139,250,0.6), 0 0 32px 8px rgba(167,139,250,0.18); }
+        }
+        @keyframes pillBorderGlow {
+          0%   { border-color: rgba(34,211,238,0.25); box-shadow: 0 0 10px 1px rgba(34,211,238,0.1); }
+          50%  { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 10px 1px rgba(167,139,250,0.12); }
+          100% { border-color: rgba(34,211,238,0.25); box-shadow: 0 0 10px 1px rgba(34,211,238,0.1); }
+        }
+        .btn-glow-cyan {
+          animation: btnGlowCyan 3s ease-in-out infinite;
+        }
+        .btn-glow-violet {
+          animation: btnGlowViolet 3s ease-in-out infinite;
+          animation-delay: 1.5s;
+        }
+        .pill-glow {
+          animation: pillBorderGlow 4s ease-in-out infinite;
+        }
+        @keyframes glowLoop {
+          0%   { opacity: 0.9; text-shadow: none; }
+          50%  { opacity: 1;   text-shadow: 0 0 6px currentColor; }
+          100% { opacity: 0.9; text-shadow: none; }
+        }
+        .glow-ai {
+          color: #22d3ee;
+          animation: glowLoop 4s ease-in-out infinite;
+        }
+        .glow-llm {
+          color: #93c5fd;
+          animation: glowLoop 4s ease-in-out infinite;
+          animation-delay: 1.3s;
+        }
+        .glow-research {
+          color: #c4b5fd;
+          animation: glowLoop 4s ease-in-out infinite;
+          animation-delay: 2.6s;
+        }
+        .dot-sep {
+          color: rgba(255,255,255,0.2);
+          margin: 0 0.5rem;
+        }
+      `}</style>
+
+      <motion.section
+        id="home"
+        ref={sectionRef}
+        style={{ opacity: opacityHero }}
+        className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 bg-black font-sora overflow-hidden"
       >
-        <span className="text-cyan-400 animate-pulse">AI</span> • LLM • RESEARCH
-      </motion.p>
+        {/* Cursor orb — follows mouse, no movement on buttons */}
+        <div
+          ref={orbRef}
+          className="pointer-events-none absolute z-0"
+          style={{
+            width: "340px",
+            height: "340px",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(34,211,238,0.11) 0%, transparent 70%)",
+            transform: "translate(-50%, -50%)",
+            transition: "left 0.06s linear, top 0.06s linear",
+          }}
+        />
 
-      <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white mb-10">
-        Building <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Intelligent</span> Systems
-      </h1>
-
-      <div className="text-gray-400 max-w-4xl text-sm md:text-lg leading-relaxed min-h-[120px] mb-12">
-        <p className="flex flex-wrap justify-center gap-x-2">
-          {words.map((word, i) => word === "NAME_PLACEHOLDER" ? (
-            <span key={i} className="text-cyan-300 font-bold border-b-2 border-cyan-500/20 min-w-[200px] text-left">
-              {displayText}<span className="w-[2px] h-5 bg-cyan-400 inline-block animate-pulse ml-1" />
-            </span>
-          ) : (
-            <span key={i} className="hover:text-white transition-colors duration-300">{word}</span>
-          ))}
-        </p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-6 relative z-20">
-        <MagneticButton
-          isPrimary
-          onClick={handleScroll}
-          className="bg-cyan-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+        {/* Tag line — large glowing words */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="relative z-10 flex items-center mb-8 uppercase font-black tracking-[0.35em] text-2xl md:text-3xl select-none"
         >
-          View Projects
-        </MagneticButton>
+          <span className="glow-ai">AI</span>
+          <span className="dot-sep">•</span>
+          <span className="glow-llm">LLM</span>
+          <span className="dot-sep">•</span>
+          <span className="glow-research">RESEARCH</span>
+        </motion.p>
 
-        <MagneticButton
-          href="/Kalyanam_Venkata_Sree_Sai_Resume.pdf"
-          className="bg-white/5 border border-white/10 text-white backdrop-blur-xl"
+        {/* Headline */}
+        <h1 className="relative z-10 text-5xl md:text-8xl font-black tracking-tighter text-white mb-10">
+          Building{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            Intelligent
+          </span>{" "}
+          Systems
+        </h1>
+
+        {/* Typing bio */}
+        <div className="relative z-10 text-gray-400 max-w-4xl text-sm md:text-lg leading-relaxed min-h-[120px] mb-12">
+          <p className="flex flex-wrap justify-center gap-x-2">
+            {words.map((word, i) =>
+              word === "NAME_PLACEHOLDER" ? (
+                <span
+                  key={i}
+                  className="text-cyan-300 font-bold border-b-2 border-cyan-500/20 min-w-[200px] text-left"
+                >
+                  {displayText}
+                  <span className="w-[2px] h-5 bg-cyan-400 inline-block animate-pulse ml-1" />
+                </span>
+              ) : (
+                <span key={i} className="hover:text-white transition-colors duration-300">
+                  {word}
+                </span>
+              )
+            )}
+          </p>
+        </div>
+
+        {/* Sticky pill button group */}
+        <div
+          className="pill-glow relative z-20 flex items-center rounded-full p-1.5 gap-1"
+          style={{
+            border: "1px solid rgba(34,211,238,0.25)",
+            background: "rgba(255,255,255,0.03)",
+            backdropFilter: "blur(12px)",
+          }}
         >
-          Download Resume
-        </MagneticButton>
-      </div>
-    </motion.section>
+          <StaticButton
+            onClick={handleScroll}
+            bubbleLabel="VIEW"
+            className="btn-glow-cyan bg-cyan-500 text-black"
+          >
+            View Projects
+          </StaticButton>
+
+          {/* Divider */}
+          <div
+            className="flex-shrink-0"
+            style={{ width: "1px", height: "28px", background: "rgba(255,255,255,0.12)" }}
+          />
+
+          <StaticButton
+            href="/Kalyanam_Venkata_Sree_Sai_Resume.pdf"
+            bubbleLabel="SAVE"
+            className="btn-glow-violet bg-white/5 border border-white/10 text-white hover:bg-white/10"
+          >
+            Download Resume
+          </StaticButton>
+        </div>
+      </motion.section>
+    </>
   );
 }
