@@ -1,40 +1,78 @@
 @import "tailwindcss";
+
 /* ROOT */
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
 }
+
 /* BASE */
 html {
   scroll-behavior: smooth;
   height: 100%;
 }
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  max-width: 100%;
 }
+
 /* PERFORMANCE */
 canvas {
   pointer-events: none;
 }
+
 /* SCROLL FIX */
 section {
   scroll-margin-top: 80px;
 }
+
 /* INTERACTION */
 a, button {
   cursor: pointer;
 }
-/* 🔥 BUTTON GLOW EFFECT */
+
+/* 🔥 ADVANCED BUTTON & UI EFFECTS */
+
+/* 1. Shimmer Streak Effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(100%) skewX(-15deg);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* 2. Rotating Border Beam (Spin) */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 4s linear infinite;
+}
+
+/* 3. Existing Glow Button logic */
 .glow-btn {
   position: relative;
   overflow: hidden;
   border-radius: 9999px;
   transition: all 0.3s ease;
 }
-/* INNER GLOW */
+
 .glow-btn::before {
   content: "";
   position: absolute;
@@ -48,30 +86,30 @@ a, button {
   opacity: 0;
   transition: opacity 0.25s ease;
 }
-/* SHOW ON HOVER */
+
 .glow-btn:hover::before {
   opacity: 1;
 }
-/* BORDER GLOW */
+
 .glow-btn:hover {
-  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+  box-shadow: 0 0 25px rgba(34, 211, 238, 0.4);
 }
-/* ANIMATION */
-@keyframes neonBorder {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 200% 50%; }
-  100% { background-position: 0% 50%; }
-}
+
+/* PERSPECTIVE FOR MAGNETIC EFFECTS */
 .perspective {
   perspective: 1000px;
 }
-html, body {
-  overflow-x: hidden;
-  max-width: 100%;
-}
+
 /* ✅ DISABLE CUSTOM CURSOR ON MOBILE/TOUCH DEVICES */
 @media (pointer: coarse) {
   *, *::before, *::after {
     cursor: auto !important;
   }
+}
+
+/* UTILITY FOR THE BORDER BEAM MASKING */
+.border-beam-mask {
+  mask-image: linear-gradient(white, white), linear-gradient(white, white);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
 }
