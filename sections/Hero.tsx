@@ -1,14 +1,15 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useState, useMemo } from "react";
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { useEffect, useState, useMemo, useRef } from "react";
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { scrollY } = useScroll();
 
-  // Cinematic scroll effects
-  const yBg = useTransform(scrollY, [0, 600], [0, 100]);
-  const opacityBg = useTransform(scrollY, [0, 500], [1, 0.3]);
+  // Cinematic scroll fade-out
+  const opacityHero = useTransform(scrollY, [0, 400], [1, 0]);
 
   const handleScroll = () => {
     const section = document.getElementById("projects");
@@ -20,114 +21,180 @@ export default function Hero() {
     }
   };
 
-  // ✨ Optimized Typing animation for the Name
-  const fullText = "Kalyanam Venkata Sree Sai";
-  const [displayText, setDisplayText] = useState("");
-  
-  useEffect(() => {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i <= fullText.length) {
-        setDisplayText(fullText.slice(0, i));
-        i++;
-      } else if (i > fullText.length + 30) { // Pause at the end before reset
-        i = 0;
-        setDisplayText("");
-      } else {
-        i++;
-      }
-    }, 100);
+  // --- MAGNETIC BUTTON LOGIC ---
+  const MagneticButton = ({ children, className, onClick, href, isPrimary }: any) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
 
-    return () => clearInterval(typingInterval);
+    const springConfig = { damping: 15, stiffness: 150 };
+    const translateX = useSpring(x, springConfig);
+    const translateY = useSpring(y, springConfig);
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = ref.current!.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+      x.set(clientX - centerX);
+      y.set(clientY - centerY);
+    };
+
+    const handleMouseLeave = () => {
+      x.set(0);
+      y.set(0);
+    };
+
+    const Content = (
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ x: translateX, y: translateY }}
+        className="relative"
+      >
+        <button
+          onClick={onClick}
+          className={`${className} relative overflow-hidden group transition-transform duration-300`}
+        >
+          {/* Border Beam Effect for Primary Button */}
+          {isPrimary && (
+            <span className="absolute inset-0 border-2 border-transparent bg-gradient-to-r from-cyan-500 to-purple-500 [mask-image:linear-gradient(white,white)_padding-box,linear-gradient(white,white)] border-box opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+          )}
+          
+          <span className="relative z-10">{children}</span>
+          
+          {/* Internal Glow Follow */}
+          <span className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_var(--x)_var(--y),rgba(255,255,255,0.2)_0%,transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </button>
+      </motion.div>
+    );
+
+    return href ? <a href={href} target="_blank">{Content}</a> : Content;
+  };
+
+  // --- NEURAL NETWORK CANVAS ---
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let particles: any[] = [];
+    let mouse = { x: -1000, y: -1000 };
+
+    const init = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = Array.from({ length: 60 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+      }));
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(34, 211, 238, 0.5)";
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const d = Math.hypot(p.x - particles[j].x, p.y - particles[j].y);
+          if (d < 150) {
+            ctx.strokeStyle = `rgba(168, 85, 247, ${1 - d / 150 * 0.2})`;
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(p.x, p.y, 1, 1); // Optimization: connect lines
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+          }
+        }
+      });
+      requestAnimationFrame(animate);
+    };
+
+    init();
+    animate();
+    window.addEventListener("resize", init);
+    window.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    return () => window.removeEventListener("resize", init);
   }, []);
 
-  // Updated Professional Bio: Exactly 39 words
+  const fullText = "Kalyanam Venkata Sree Sai";
+  const [displayText, setDisplayText] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayText(fullText.slice(0, i % (fullText.length + 30)));
+      i++;
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   const words = useMemo(() => [
-    "I", "am", "NAME_PLACEHOLDER", ",", "a", "dedicated", "Applied", "AI", "Research", 
-    "Engineer", "focused", "on", "mastering", "Generative", "AI", "and", "LLM", 
-    "orchestration.", "I", "specialize", "in", "transforming", "complex", "research", 
-    "into", "robust,", "high-performance", "AI", "solutions", "meticulously", 
-    "optimized", "for", "reliability,", "minimal", "latency,", "and", "measurable", 
-    "real-world", "impact."
+    "I", "am", "NAME_PLACEHOLDER", ",", "a", "dedicated", "Applied", "AI", "Research",
+    "Engineer", "focused", "on", "mastering", "Generative", "AI", "and", "LLM",
+    "orchestration.", "I", "specialize", "in", "transforming", "complex", "research",
+    "into", "robust,", "high-performance", "AI", "solutions", "meticulously",
+    "optimized", "for", "reliability,", "minimal", "latency,", "and", "measurable",
+    "real-world", "impact.",
   ], []);
 
   return (
-    <section
+    <motion.section
+      ref={sectionRef}
       id="home"
-      className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 md:px-6 overflow-hidden font-sora"
+      style={{ opacity: opacityHero }}
+      className="relative min-h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden bg-black font-sora"
     >
-      {/* BACKGROUND EFFECTS */}
-      <motion.div style={{ y: yBg, opacity: opacityBg }} className="absolute inset-0 -z-10 pointer-events-none">
-        <div 
-          className="absolute inset-0" 
-          style={{ 
-            backgroundImage: "url('/hero-bg.webp')", 
-            backgroundSize: "cover", 
-            backgroundPosition: "center", 
-            filter: "brightness(0.5) contrast(1.1)" 
-          }} 
-        />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute w-72 h-72 bg-cyan-500/10 blur-[120px] top-0 left-0" />
-        <div className="absolute w-72 h-72 bg-purple-500/10 blur-[120px] bottom-0 right-0" />
-      </motion.div>
+      <canvas ref={canvasRef} className="absolute inset-0 -z-10 pointer-events-none" />
 
-      {/* TAGLINE */}
       <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-[10px] sm:text-xs md:text-sm tracking-[0.3em] mb-6 flex flex-wrap gap-2 items-center justify-center uppercase font-bold text-gray-400"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className="text-[10px] tracking-[0.4em] mb-6 uppercase font-bold text-gray-500"
       >
-        <span className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] animate-pulse">AI</span>
-        <span className="opacity-30">•</span>
-        <span className="text-purple-400">LLM</span>
-        <span className="opacity-30">•</span>
-        <span className="text-pink-400">GENERATIVE SYSTEMS</span>
+        <span className="text-cyan-400 animate-pulse">AI</span> • LLM • GENERATIVE SYSTEMS
       </motion.p>
 
-      {/* MAIN TITLE */}
-      <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tighter text-white">
-        Building Scalable <br className="hidden sm:block" />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-          Intelligent AI Systems
-        </span>
+      <h1 className="text-5xl md:text-8xl font-extrabold tracking-tighter text-white mb-8">
+        Building <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Intelligent</span> Systems
       </h1>
 
-      {/* DESCRIPTION & TYPING */}
-      <div className="mt-8 text-gray-400 max-w-4xl text-sm md:text-base lg:text-lg leading-relaxed px-2 min-h-[100px]">
-        <p className="flex flex-wrap justify-center gap-x-1.5 gap-y-1">
-          {words.map((word, i) => {
-            if (word === "NAME_PLACEHOLDER") {
-              return (
-                <span key={i} className="text-cyan-300 font-bold border-b border-cyan-500/30 min-w-[180px] inline-block text-left">
-                  {displayText}
-                  <span className="inline-block w-[2px] h-[1em] bg-cyan-400 ml-1 animate-pulse align-middle" />
-                </span>
-              );
-            }
-            return <span key={i} className="hover:text-white transition-colors duration-300">{word}</span>;
-          })}
+      <div className="text-gray-400 max-w-4xl text-sm md:text-lg leading-relaxed min-h-[100px]">
+        <p className="flex flex-wrap justify-center gap-x-1.5">
+          {words.map((word, i) => word === "NAME_PLACEHOLDER" ? (
+            <span key={i} className="text-cyan-300 font-bold border-b border-cyan-500/30 min-w-[180px] text-left">
+              {displayText}<span className="w-1 h-5 bg-cyan-400 inline-block animate-pulse" />
+            </span>
+          ) : (
+            <span key={i} className="hover:text-white transition-colors">{word}</span>
+          ))}
         </p>
       </div>
 
-      {/* BUTTONS */}
-      <div className="mt-12 flex flex-col sm:flex-row gap-5 relative z-20">
-        <button
+      <div className="mt-12 flex flex-col sm:flex-row gap-8 relative z-20">
+        <MagneticButton
+          isPrimary
           onClick={handleScroll}
-          className="bg-cyan-500 text-black px-10 py-4 rounded-full font-bold text-sm hover:bg-cyan-400 hover:scale-105 transition-all shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+          className="bg-cyan-500 text-black px-12 py-5 rounded-full font-bold text-sm shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.6)]"
         >
           View Projects
-        </button>
+        </MagneticButton>
 
-        <a
+        <MagneticButton
           href="/Kalyanam_Venkata_Sree_Sai_Resume.pdf"
-          target="_blank"
-          className="border border-white/10 px-10 py-4 rounded-full text-sm font-medium hover:bg-white hover:text-black transition-all backdrop-blur-md"
+          className="border border-white/20 text-white px-12 py-5 rounded-full font-medium text-sm backdrop-blur-md hover:bg-white/5"
         >
           Download Resume
-        </a>
+        </MagneticButton>
       </div>
-    </section>
+    </motion.section>
   );
 }
