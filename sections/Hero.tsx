@@ -140,28 +140,29 @@ export default function Hero() {
           from { transform: translateX(-100%); }
           to   { transform: translateX(140%); }
         }
-        @keyframes btnGlowCyan {
-          0%, 100% { box-shadow: 0 0 8px 2px rgba(34,211,238,0.35), 0 0 0px rgba(34,211,238,0); }
-          50%       { box-shadow: 0 0 18px 4px rgba(34,211,238,0.65), 0 0 32px 8px rgba(34,211,238,0.2); }
+        .btn-cyan {
+          background: #22d3ee;
+          color: #000;
+          border: none;
+          box-shadow: none;
+          transition: box-shadow 0.35s ease, transform 0.2s ease;
         }
-        @keyframes btnGlowViolet {
-          0%, 100% { box-shadow: 0 0 8px 2px rgba(167,139,250,0.3), 0 0 0px rgba(167,139,250,0); }
-          50%       { box-shadow: 0 0 18px 4px rgba(167,139,250,0.6), 0 0 32px 8px rgba(167,139,250,0.18); }
+        .btn-cyan:hover {
+          box-shadow: 0 0 16px 3px rgba(34,211,238,0.55), 0 0 32px 8px rgba(34,211,238,0.2);
         }
-        @keyframes pillBorderGlow {
-          0%   { border-color: rgba(34,211,238,0.25); box-shadow: 0 0 10px 1px rgba(34,211,238,0.1); }
-          50%  { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 10px 1px rgba(167,139,250,0.12); }
-          100% { border-color: rgba(34,211,238,0.25); box-shadow: 0 0 10px 1px rgba(34,211,238,0.1); }
+        .btn-violet {
+          background: rgba(255,255,255,0.05);
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.12);
+          box-shadow: none;
+          transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.2s ease;
         }
-        .btn-glow-cyan {
-          animation: btnGlowCyan 3s ease-in-out infinite;
+        .btn-violet:hover {
+          border-color: rgba(167,139,250,0.6);
+          box-shadow: 0 0 16px 3px rgba(167,139,250,0.45), 0 0 32px 8px rgba(167,139,250,0.15);
         }
-        .btn-glow-violet {
-          animation: btnGlowViolet 3s ease-in-out infinite;
-          animation-delay: 1.5s;
-        }
-        .pill-glow {
-          animation: pillBorderGlow 4s ease-in-out infinite;
+        .btn-cyan:active, .btn-violet:active {
+          transform: scale(0.96);
         }
         @keyframes glowLoop {
           0%   { opacity: 0.9; text-shadow: none; }
@@ -253,33 +254,20 @@ export default function Hero() {
           </p>
         </div>
 
-        {/* Sticky pill button group */}
-        <div
-          className="pill-glow relative z-20 flex items-center rounded-full p-1.5 gap-1"
-          style={{
-            border: "1px solid rgba(34,211,238,0.25)",
-            background: "rgba(255,255,255,0.03)",
-            backdropFilter: "blur(12px)",
-          }}
-        >
+        {/* Separate buttons — glow only on hover */}
+        <div className="relative z-20 flex items-center gap-5">
           <StaticButton
             onClick={handleScroll}
             bubbleLabel="VIEW"
-            className="btn-glow-cyan bg-cyan-500 text-black"
+            className="btn-cyan"
           >
             View Projects
           </StaticButton>
 
-          {/* Divider */}
-          <div
-            className="flex-shrink-0"
-            style={{ width: "1px", height: "28px", background: "rgba(255,255,255,0.12)" }}
-          />
-
           <StaticButton
             href="/Kalyanam_Venkata_Sree_Sai_Resume.pdf"
             bubbleLabel="SAVE"
-            className="btn-glow-violet bg-white/5 border border-white/10 text-white hover:bg-white/10"
+            className="btn-violet"
           >
             Download Resume
           </StaticButton>
